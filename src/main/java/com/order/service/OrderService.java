@@ -1,0 +1,75 @@
+package com.order.service;
+
+
+import com.order.bean.InventoryItem;
+import com.order.bean.OrderItem;
+import com.order.bean.Product;
+import com.order.bean.UserOrder;
+import com.order.exception.InvalidProductQuantityException;
+import com.order.exception.ProductNotFoundException;
+import com.order.exception.ProductNotFoundInInventoryException;
+import com.order.persistence.OrderDaoInterface;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+
+@Service
+public class OrderService implements OrderServiceInterface {
+    private RestTemplate restTemplate;
+
+    @Autowired
+    public void setRestTemplate(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
+
+    private OrderDaoInterface orderDao;
+
+    @Autowired
+    public void setOrderDao(OrderDaoInterface orderDao) {
+        this.orderDao = orderDao;
+    }
+
+    @Override
+    public Optional<UserOrder> findOrderById(Long id) {
+        return orderDao.findById(id);
+    }
+
+    @Override
+    public List<UserOrder> getAllUserOrders() {
+        return orderDao.findAll();
+    }
+
+    @Override
+    public UserOrder createOrder(UserOrder userOrder) {
+        List<OrderItem> items = userOrder.getItems();
+        List<OrderItem> validItems = new ArrayList<>();
+
+        for (OrderItem orderItem : items) {
+            InventoryItem inventoryItem = restTemplate.getForObject("http://localhost:8082/inventories/order/code/" + orderItem.getProductCode(), InventoryItem.class);
+            if (inventoryItem != null) {
+                if (orderItem.getQuantity() <= inventoryItem.getAvailableQuantity()) {
+                    Product product = restTemplate.getForObject("http://localhost:8084/products/order/code/" + orderItem.getProductCode(), Product.class);
+                    if (product != null) {
+                        orderItem.setProductPrice(product.getPrice() * orderItem.getQuantity());
+                        inventoryItem.setAvailableQuantity(inventoryItem.getAvailableQuantity() - orderItem.getQuantity());
+//                        restTemplate.put("http://localhost:8082/inventories/", inventoryItem);
+                        validItems.add(orderItem);
+                    } else {
+                        throw new ProductNotFoundException("Product With Product Code " + orderItem.getProductCode() + " Not Found");
+                    }
+                } else {
+                    throw new InvalidProductQuantityException("Requested Quantity [" + orderItem.getQuantity() + "] of Product " + orderItem.getProductCode() + " is More Than Available Quantity [" + inventoryItem.getAvailableQuantity() + "]");
+                }
+            } else {
+                throw new ProductNotFoundInInventoryException("Product With Product Code " + orderItem.getProductCode() + " Not Found In Inventory ");
+            }
+        }
+        userOrder.setItems(validItems);
+        return orderDao.save(userOrder);
+    }
+}

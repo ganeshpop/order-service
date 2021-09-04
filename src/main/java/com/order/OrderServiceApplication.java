@@ -12,7 +12,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.web.client.RestTemplate;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,12 +36,17 @@ public class OrderServiceApplication implements CommandLineRunner {
     }
 
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) {
         List<OrderItem> items = new ArrayList<>();
         items.add(new OrderItem("P1001",1));
         items.add(new OrderItem("P1002",2));
         items.add(new OrderItem("P1004",3));
         items.add(new OrderItem("P1007",1));
-        orderService.createOrder(new UserOrder("customer1@example.com","Mumbai, India", items));
+        orderService.createOrder(new UserOrder("ravi","Mumbai, India", items));
+        List<OrderItem> items1 = new ArrayList<>();
+        items1.add(new OrderItem("P1001",1));
+        items1.add(new OrderItem("P1004",2));
+        items1.add(new OrderItem("P1007",1));
+        orderService.createOrder(new UserOrder("ravi","Mumbai, India", items1));
     }
 }

@@ -3,6 +3,7 @@ package com.order.resources;
 
 import com.order.bean.UserOrderList;
 import com.order.bean.UserOrder;
+import com.order.exception.OrderNotFoundException;
 import com.order.exception.UserNotFoundException;
 import com.order.service.OrderServiceInterface;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
 import java.net.URI;
+import java.util.List;
 import java.util.Optional;
 
 
@@ -36,6 +38,10 @@ public class OrderResource {
         return userOrderList;
     }
 
+
+
+
+
     @PostMapping(produces = "Application/json", consumes = "Application/json")
     ResponseEntity<Object> saveUserOrder(@Valid @RequestBody UserOrder userOrder) {
         UserOrder createdUserOrder = orderService.createOrder(userOrder);
@@ -44,7 +50,7 @@ public class OrderResource {
     }
 
     @GetMapping(path = "/{id}", produces = "Application/json")
-    UserOrder getUserOrderById(@PathVariable("id") Long id) throws UserNotFoundException {
+    UserOrder getUserOrderById(@PathVariable("id") Long id) {
         Optional<UserOrder> userOrder = orderService.findOrderById(id);
         if (!userOrder.isPresent()) {
             throw new UserNotFoundException("No Order With ID " + id + " Found");
@@ -52,4 +58,19 @@ public class OrderResource {
         return userOrder.get();
     }
 
+    @GetMapping(path = "/name/{userName}", produces = "Application/json")
+    List<UserOrder> getUserOrdersByUserName(@PathVariable("userName") String userName) {
+        List<UserOrder> userOrderList = orderService.getUserOrdersByUserName(userName);
+        if (!userOrderList.isEmpty()) {
+            return userOrderList;
+        }
+//        throw new OrderNotFoundException("No Orders With User Name " + userName + " Found");
+        return null;
+    }
+
+    @GetMapping(path = "/name/last/{userName}", produces = "Application/json")
+    UserOrder getLastUserOrderByUserName(@PathVariable("userName") String userName) {
+        return orderService.getLastUserOrderByUserName(userName);
+//        throw new OrderNotFoundException("No Orders With User Name " + userName + " Found");
+    }
 }

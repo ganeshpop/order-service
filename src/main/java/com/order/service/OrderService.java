@@ -45,6 +45,20 @@ public class OrderService implements OrderServiceInterface {
     }
 
     @Override
+    public UserOrder getLastUserOrderByUserName(String userName) {
+         List<UserOrder> userOrderList =  orderDao.getUserOrderByUserNameOrderByIdDesc(userName);
+         if(!userOrderList.isEmpty()){
+             return userOrderList.get(0);
+         }
+         return null;
+    }
+
+    @Override
+    public List<UserOrder> getUserOrdersByUserName(String userName) {
+        return orderDao.getUserOrdersByUserName(userName);
+    }
+
+    @Override
     public UserOrder createOrder(UserOrder userOrder) {
         List<OrderItem> items = userOrder.getItems();
         List<OrderItem> validItems = new ArrayList<>();
@@ -56,8 +70,6 @@ public class OrderService implements OrderServiceInterface {
                     Product product = restTemplate.getForObject("http://localhost:8084/products/order/code/" + orderItem.getProductCode(), Product.class);
                     if (product != null) {
                         orderItem.setProductPrice(product.getPrice() * orderItem.getQuantity());
-                        inventoryItem.setAvailableQuantity(inventoryItem.getAvailableQuantity() - orderItem.getQuantity());
-//                        restTemplate.put("http://localhost:8082/inventories/", inventoryItem);
                         validItems.add(orderItem);
                     } else {
                         throw new ProductNotFoundException("Product With Product Code " + orderItem.getProductCode() + " Not Found");

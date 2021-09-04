@@ -12,5 +12,7 @@ public interface OrderServiceInterface {
     Optional<UserOrder> findOrderById(Long id);
     List<UserOrder> getAllUserOrders();
     UserOrder createOrder(UserOrder orderTable) throws InvalidProductQuantityException;
+    UserOrder getLastUserOrderByUserName(String userName);
+    List<UserOrder> getUserOrdersByUserName(String userName);
 
 }

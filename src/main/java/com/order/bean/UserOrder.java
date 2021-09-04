@@ -4,8 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
 import java.util.List;
 
 @Getter
@@ -18,15 +16,15 @@ public class UserOrder {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    private String customerEmail;
+    private String userName;
     private String customerAddress;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<OrderItem> items;
 
 
-    public UserOrder(String customerEmail, String customerAddress, List<OrderItem> items){
-        this.customerEmail = customerEmail;
+    public UserOrder(String userName, String customerAddress, List<OrderItem> items){
+        this.userName = userName;
         this.customerAddress = customerAddress;
         this.items = items;
     }

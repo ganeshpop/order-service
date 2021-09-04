@@ -3,7 +3,6 @@ package com.order.resources;
 
 import com.order.bean.UserOrderList;
 import com.order.bean.UserOrder;
-import com.order.exception.OrderNotFoundException;
 import com.order.exception.UserNotFoundException;
 import com.order.service.OrderServiceInterface;
 import org.springframework.beans.factory.annotation.Autowired;

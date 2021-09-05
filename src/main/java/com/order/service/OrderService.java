@@ -70,6 +70,7 @@ public class OrderService implements OrderServiceInterface {
                     Product product = restTemplate.getForObject("http://localhost:8084/products/order/code/" + orderItem.getProductCode(), Product.class);
                     if (product != null) {
                         orderItem.setProductPrice(product.getPrice() * orderItem.getQuantity());
+                        userOrder.setTotalFare(userOrder.getTotalFare() + orderItem.getProductPrice());
                         validItems.add(orderItem);
                     } else {
                         throw new ProductNotFoundException("Product With Product Code " + orderItem.getProductCode() + " Not Found");
@@ -82,6 +83,7 @@ public class OrderService implements OrderServiceInterface {
             }
         }
         userOrder.setItems(validItems);
+        userOrder.setItemCount(validItems.size());
         return orderDao.save(userOrder);
     }
 }

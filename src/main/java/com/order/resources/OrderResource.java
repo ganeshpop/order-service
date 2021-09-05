@@ -58,10 +58,10 @@ public class OrderResource {
     }
 
     @GetMapping(path = "/name/{userName}", produces = "Application/json")
-    List<UserOrder> getUserOrdersByUserName(@PathVariable("userName") String userName) {
-        List<UserOrder> userOrderList = orderService.getUserOrdersByUserName(userName);
-        if (!userOrderList.isEmpty()) {
-            return userOrderList;
+    UserOrderList getUserOrdersByUserName(@PathVariable("userName") String userName) {
+        List<UserOrder> userOrders = orderService.getUserOrdersByUserName(userName);
+        if (!userOrders.isEmpty()) {
+            return new UserOrderList(userOrders);
         }
 //        throw new OrderNotFoundException("No Orders With User Name " + userName + " Found");
         return null;

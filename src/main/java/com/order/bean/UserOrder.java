@@ -18,6 +18,8 @@ public class UserOrder {
     private long id;
     private String userName;
     private String customerAddress;
+    private int itemCount;
+    private double totalFare;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<OrderItem> items;

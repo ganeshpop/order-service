@@ -42,11 +42,11 @@ public class OrderServiceApplication implements CommandLineRunner {
         items.add(new OrderItem("P1002",2));
         items.add(new OrderItem("P1004",3));
         items.add(new OrderItem("P1007",1));
-        orderService.createOrder(new UserOrder("ravi","Mumbai, India", items));
+        orderService.createOrder(new UserOrder("ravi", items));
         List<OrderItem> items1 = new ArrayList<>();
         items1.add(new OrderItem("P1001",1));
         items1.add(new OrderItem("P1004",2));
         items1.add(new OrderItem("P1007",1));
-        orderService.createOrder(new UserOrder("ravi","Mumbai, India", items1));
+        orderService.createOrder(new UserOrder("ravi", items1));
     }
 }

@@ -17,7 +17,6 @@ public class UserOrder {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     private String userName;
-    private String customerAddress;
     private int itemCount;
     private double totalFare;
 
@@ -25,9 +24,8 @@ public class UserOrder {
     private List<OrderItem> items;
 
 
-    public UserOrder(String userName, String customerAddress, List<OrderItem> items){
+    public UserOrder(String userName, List<OrderItem> items){
         this.userName = userName;
-        this.customerAddress = customerAddress;
         this.items = items;
     }
 }

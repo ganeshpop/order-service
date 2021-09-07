@@ -3,7 +3,6 @@ package com.order.resources;
 
 import com.order.bean.UserOrderList;
 import com.order.bean.UserOrder;
-import com.order.exception.UserNotFoundException;
 import com.order.service.OrderServiceInterface;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -38,9 +37,6 @@ public class OrderResource {
     }
 
 
-
-
-
     @PostMapping(produces = "Application/json", consumes = "Application/json")
     ResponseEntity<Object> saveUserOrder(@Valid @RequestBody UserOrder userOrder) {
         UserOrder createdUserOrder = orderService.createOrder(userOrder);
@@ -51,10 +47,8 @@ public class OrderResource {
     @GetMapping(path = "/{id}", produces = "Application/json")
     UserOrder getUserOrderById(@PathVariable("id") Long id) {
         Optional<UserOrder> userOrder = orderService.findOrderById(id);
-        if (!userOrder.isPresent()) {
-            throw new UserNotFoundException("No Order With ID " + id + " Found");
-        }
-        return userOrder.get();
+        //            throw new UserNotFoundException("No Order With ID " + id + " Found");
+        return userOrder.orElse(null);
     }
 
     @GetMapping(path = "/name/{userName}", produces = "Application/json")

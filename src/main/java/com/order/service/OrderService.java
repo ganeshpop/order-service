@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -62,6 +64,7 @@ public class OrderService implements OrderServiceInterface {
     public UserOrder createOrder(UserOrder userOrder) {
         List<OrderItem> items = userOrder.getItems();
         List<OrderItem> validItems = new ArrayList<>();
+        int itemCount = 0;
 
         for (OrderItem orderItem : items) {
             InventoryItem inventoryItem = restTemplate.getForObject("http://localhost:8082/inventories/order/code/" + orderItem.getProductCode(), InventoryItem.class);
@@ -69,9 +72,10 @@ public class OrderService implements OrderServiceInterface {
                 if (orderItem.getQuantity() <= inventoryItem.getAvailableQuantity()) {
                     Product product = restTemplate.getForObject("http://localhost:8084/products/order/code/" + orderItem.getProductCode(), Product.class);
                     if (product != null) {
-                        orderItem.setProductPrice(product.getPrice() * orderItem.getQuantity());
+                        orderItem.setProductPrice(BigDecimal.valueOf(product.getPrice() * orderItem.getQuantity()).setScale(2, RoundingMode.HALF_UP).doubleValue());
                         userOrder.setTotalFare(userOrder.getTotalFare() + orderItem.getProductPrice());
                         validItems.add(orderItem);
+                        itemCount += orderItem.getQuantity();
                     } else {
                         throw new ProductNotFoundException("Product With Product Code " + orderItem.getProductCode() + " Not Found");
                     }
@@ -83,7 +87,7 @@ public class OrderService implements OrderServiceInterface {
             }
         }
         userOrder.setItems(validItems);
-        userOrder.setItemCount(validItems.size());
+        userOrder.setItemCount(itemCount);
         return orderDao.save(userOrder);
     }
 }

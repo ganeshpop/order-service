@@ -57,7 +57,6 @@ public class OrderResource {
         if (!userOrders.isEmpty()) {
             return new UserOrderList(userOrders);
         }
-//        throw new OrderNotFoundException("No Orders With User Name " + userName + " Found");
         return null;
     }
 

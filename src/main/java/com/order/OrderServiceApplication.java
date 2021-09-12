@@ -8,6 +8,8 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
+import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.web.client.RestTemplate;
@@ -18,6 +20,7 @@ import java.util.List;
 @SpringBootApplication(scanBasePackages = "com.order")
 @EnableJpaRepositories(basePackages = "com.order.persistence")
 @EntityScan(basePackages = "com.order.bean")
+@EnableEurekaClient
 public class OrderServiceApplication implements CommandLineRunner {
     private OrderServiceInterface orderService;
 
@@ -27,6 +30,7 @@ public class OrderServiceApplication implements CommandLineRunner {
     }
 
     @Bean
+    @LoadBalanced
     RestTemplate getRestTemplate() {
         return new RestTemplate();
     }

@@ -11,7 +11,6 @@ import com.order.exception.ProductNotFoundInInventoryException;
 import com.order.persistence.OrderDaoInterface;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -22,14 +21,19 @@ import java.util.Optional;
 
 @Service
 public class OrderService implements OrderServiceInterface {
-    private RestTemplate restTemplate;
+    private OrderDaoInterface orderDao;
+    private InventoryService inventoryService;
+    private CatalogService catalogService;
 
     @Autowired
-    public void setRestTemplate(RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
+    public void setCatalogService(CatalogService catalogService) {
+        this.catalogService = catalogService;
     }
 
-    private OrderDaoInterface orderDao;
+    @Autowired
+    public void setInventoryService(InventoryService inventoryService) {
+        this.inventoryService = inventoryService;
+    }
 
     @Autowired
     public void setOrderDao(OrderDaoInterface orderDao) {
@@ -67,11 +71,11 @@ public class OrderService implements OrderServiceInterface {
         int itemCount = 0;
 
         for (OrderItem orderItem : items) {
-            InventoryItem inventoryItem = restTemplate.getForObject("http://localhost:8082/inventories/order/code/" + orderItem.getProductCode(), InventoryItem.class);
-            if (inventoryItem != null) {
+            InventoryItem inventoryItem = inventoryService.getInventoryItemByProductCode(orderItem.getProductCode());
+            if (inventoryItem.getId() != 0) {
                 if (orderItem.getQuantity() <= inventoryItem.getAvailableQuantity()) {
-                    Product product = restTemplate.getForObject("http://localhost:8084/products/order/code/" + orderItem.getProductCode(), Product.class);
-                    if (product != null) {
+                    Product product = catalogService.getProductByProductCode(orderItem.getProductCode());
+                    if (product.getId() != 0) {
                         orderItem.setProductPrice(BigDecimal.valueOf(product.getPrice() * orderItem.getQuantity()).setScale(2, RoundingMode.HALF_UP).doubleValue());
                         userOrder.setTotalFare(userOrder.getTotalFare() + orderItem.getProductPrice());
                         validItems.add(orderItem);
